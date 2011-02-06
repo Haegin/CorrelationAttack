@@ -1,41 +1,62 @@
 package in.haeg.cry.correlationattack;
 
 import java.util.ArrayList;
-import in.haeg.cry.BitString;
 
 public class LFSRInitialState {
-	private BitString tapSequence;
-	private ArrayList<Boolean> stream = new ArrayList<Boolean>(Constants.ITERATIONS);
-	private BitString bitString;
+	private int tapSequence;
+	private ArrayList<Integer> stream = new ArrayList<Integer>(Constants.ITERATIONS);
+	private int bitString;
+	private final int initialState;
+	private int length;
+	private int lengthMask;
 	
-	public LFSRInitialState(BitString a_BitString, BitString a_TapSequence, int a_Iterations) {
+	public LFSRInitialState(int a_BitString, int a_Length, int a_TapSequence, int a_Iterations) {
 		tapSequence = a_TapSequence;
 		bitString = a_BitString;
+		length = a_Length;
+		initialState = bitString;
+		
+		lengthMask = 0x01;
+		for (int i = length - 1; i > 0; i--) {
+			lengthMask <<= 1;
+		}
+		
+		int nextBit;
 		for (int i = 0; i < a_Iterations; i++) {
-			stream.add(outputBit(bitString));
-			iterate();
+			
+			stream.add(bitString % 2);
+			nextBit = nextBit();
+			bitString >>>= 1;
+			if (nextBit == 1) {
+				bitString = bitString | lengthMask;
+			}
 		}
 	}
 	
-	public void iterate() {
-		BitString justTheTaps = bitString;
-		justTheTaps.and(tapSequence);
-		boolean nextBit = ((justTheTaps.cardinality() % 2) == 0);
-		bitString.rightShift();
-		bitString.set(0, nextBit);
+	private int nextBit() {
+		int numbBitsSet = 0;
+		int bitStr = bitString & tapSequence;
+		while (bitStr > 0) {
+
+			if (bitStr % 2 == 1) {
+				numbBitsSet++;
+			}
+			bitStr >>>= 1;
+		}
+		return (numbBitsSet % 2);
 	}
 	
-	public boolean outputBit(BitString a_BitString) {
-		return a_BitString.get(a_BitString.size() - 1);
-	}
-	
-	public ArrayList<Boolean> getStream() {
+	public ArrayList<Integer> getStream() {
 		return stream;
 	}
 	
 	@Override
 	public String toString() {
 		return stream.toString();
+	}
+	
+	public int getInitialState() {
+		return initialState;
 	}
 	
 }
