@@ -1,7 +1,8 @@
 package in.haeg.cry.correlationattack;
 
+import in.haeg.cry.BitString;
+
 import java.util.ArrayList;
-import java.util.BitSet;
 
 public class Main {
 
@@ -9,15 +10,30 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		BitString b1 = new BitString(4);
+		BitString b2 = new BitString(4);
 		try {
-			int[] taps = {2, 3};
+			b1.setIntegerValue(3);
+			b2.setIntegerValue(11);
+			System.out.println(b1.toString());
+			System.out.println(b1.getIntegerValue());
+			System.out.println(b2.toString());
+			System.out.println(b2.getIntegerValue());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		
+		try {
+			int[] taps = {2, 4};
 			LFSR a = new LFSR(4, taps);
 			
-			for (BitSet bs : a.generateBitStrings()) {
+			for (BitString bs : a.generateBitStrings()) {
 				System.out.println(bs.toString());
 			}
 			
-			BitSet initialState = new BitSet(4);
+			BitString initialState = new BitString(4);
 			initialState.set(1);
 			initialState.set(2);
 			System.out.println("Initial state: " + initialState);
